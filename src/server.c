@@ -44,7 +44,7 @@ int main() {
         memset(buffer, 0, BUFFER_SIZE);
         read(client_fd, buffer, BUFFER_SIZE);
         printf("Request:\n%s\n", buffer);
-
+        
         // 6. ส่ง redirect response
         char* response =
             "HTTP/1.1 302 Found\r\n"
@@ -52,6 +52,32 @@ int main() {
             "Content-Length: 0\r\n"
             "\r\n";
 
+                // ดึง path
+        char *path = strstr(buffer, "GET ");
+        path += 4;
+
+        // ตัดหลัง space
+        char *end = strstr(path, " ");
+        *end = '\0';
+
+        // if/else
+        if (strcmp(path, "/abc123") == 0) {
+            response = "HTTP/1.1 302 Found\r\n"
+                    "Location: https://youtube.com\r\n"
+                    "Content-Length: 0\r\n"
+                    "\r\n";
+        } else if (strcmp(path, "/xyz789") == 0) {
+            response = "HTTP/1.1 302 Found\r\n"
+                    "Location: https://github.com\r\n"
+                    "Content-Length: 0\r\n"
+                    "\r\n";
+        } else {
+            response = "HTTP/1.1 404 Not Found\r\n"
+                    "Content-Length: 0\r\n"
+                    "\r\n";
+        }
+
+        // write ครั้งเดียว ปิดครั้งเดียว
         write(client_fd, response, strlen(response));
         close(client_fd);
     }
