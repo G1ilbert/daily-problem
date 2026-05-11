@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "route.h"
 
 struct Route routes[MAX_ROUTES];
@@ -9,7 +10,7 @@ void load_routes(char *filename) {
     FILE *f = fopen(filename, "r");
     if (f == NULL) {
         printf("Cannot open %s\n", filename);
-        return;
+        exit(1);  // หยุดเลย
     }
     
     while (fscanf(f, "%s %s", 

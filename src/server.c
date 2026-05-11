@@ -16,7 +16,7 @@ int main() {
     int addrlen = sizeof(address);
 
     // โหลด mapping จาก file
-    load_routes("mapping.txt");
+    load_routes("mapping1.txt");
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd == 0) { perror("socket failed"); exit(1); }
