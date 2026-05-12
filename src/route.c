@@ -9,7 +9,8 @@ int route_count = 0;
 void load_routes(char *filename) {
     FILE *f = fopen(filename, "r");
     if (f == NULL) {
-        printf("Cannot open %s\n", filename);
+        // ใช้ perror แทน printf
+        perror("Error loading mapping file");
         exit(1);  // หยุดเลย
     }
     
