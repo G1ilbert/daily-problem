@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include "route.h"
@@ -14,9 +15,10 @@ int main() {
     struct sockaddr_in address;
     char buffer[BUFFER_SIZE];
     int addrlen = sizeof(address);
-    int counter = 0;
+
 
     load_routes("mapping.txt");
+    srand(time(NULL));
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd == 0) { perror("socket failed"); exit(1); }
@@ -46,12 +48,7 @@ int main() {
             body += 4;  // ข้าม blank line
 
             // สร้าง code
-            char code[7];
-            generate_code(counter, code);
-            counter++;
-
-            // เก็บใน mapping
-            add_route(code, body);
+            char *code = add_route(body);
 
             // คืน code กลับ
             char response[512];

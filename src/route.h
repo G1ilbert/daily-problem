@@ -12,7 +12,8 @@ struct Route {
 
 void load_routes(char *filename);
 char *find_url(char *code);
-void generate_code(int n,char *out);        // สร้าง code
-void add_route(char *code, char *url);  // เพิ่ม mapping
+void generate_code(char *out);        // สร้าง code
+char *add_route(char *url);  // เพิ่ม mapping
+
 
 #endif

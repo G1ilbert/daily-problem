@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 #include "route.h"
 
 struct Route routes[MAX_ROUTES];
 int route_count = 0;
-char charset[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 void load_routes(char *filename) {
     FILE *f = fopen(filename, "r");
@@ -33,19 +33,36 @@ char *find_url(char *code) {
     return NULL;
 }
 
-void generate_code(int n, char *out) {
-    int base = 62;
-    int len = 6;
-    
-    for (int i = len - 1; i >= 0; i--) {
-        out[i] = charset[n % base];
-        n /= base;
+void generate_code(char *out) {
+    char charset[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    for (int i = 0; i < 6; i++) {
+        out[i] = charset[rand() % 62];
     }
-    out[len] = '\0';
+    out[6] = '\0';
 }
 
-void add_route(char *code, char *url) {
+// add_route คืน code กลับ
+char *add_route(char *url) {
+    // เช็คก่อนว่า url นี้มีอยู่แล้วไหม
+    for (int i = 0; i < route_count; i++) {
+        if (strcmp(routes[i].url, url) == 0) {
+            return routes[i].code;  // คืน code เดิม
+        }
+    }
+    char code[7];
+    
+    do {
+        generate_code(code);
+    } while (find_url(code) != NULL);
+
     strcpy(routes[route_count].code, code);
     strcpy(routes[route_count].url, url);
     route_count++;
+
+    FILE *f = fopen("mapping.txt", "a");
+    fprintf(f, "%s %s\n", code, url);
+    fclose(f);
+
+    return routes[route_count - 1].code;
 }
+
