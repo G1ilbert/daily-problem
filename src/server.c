@@ -14,9 +14,9 @@ int main() {
     struct sockaddr_in address;
     char buffer[BUFFER_SIZE];
     int addrlen = sizeof(address);
+    int counter = 0;
 
-    // โหลด mapping จาก file
-    load_routes("mapping1.txt");
+    load_routes("mapping.txt");
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd == 0) { perror("socket failed"); exit(1); }
@@ -39,14 +39,40 @@ int main() {
         memset(buffer, 0, BUFFER_SIZE);
         read(client_fd, buffer, BUFFER_SIZE);
 
-        // ดึง path
+        // ---- POST /shorten ----
+        if (strstr(buffer, "POST /shorten") != NULL) {
+            // ดึง URL จาก body
+            char *body = strstr(buffer, "\r\n\r\n");
+            body += 4;  // ข้าม blank line
+
+            // สร้าง code
+            char code[7];
+            generate_code(counter, code);
+            counter++;
+
+            // เก็บใน mapping
+            add_route(code, body);
+
+            // คืน code กลับ
+            char response[512];
+            snprintf(response, sizeof(response),
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Length: %zu\r\n"
+                "\r\n"
+                "%s", strlen(code), code);
+
+            write(client_fd, response, strlen(response));
+            close(client_fd);
+            continue;
+        }
+
+        // ---- GET /:code ----
         char *path = strstr(buffer, "GET ");
         path += 4;
         char *end = strstr(path, " ");
         *end = '\0';
 
-        // หา url จาก mapping
-        char *url = find_url(path + 1);  // +1 ตัด / ออก
+        char *url = find_url(path + 1);
 
         const char *response;
         char redirect[512];

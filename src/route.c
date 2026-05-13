@@ -5,6 +5,7 @@
 
 struct Route routes[MAX_ROUTES];
 int route_count = 0;
+char charset[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 void load_routes(char *filename) {
     FILE *f = fopen(filename, "r");
@@ -30,4 +31,21 @@ char *find_url(char *code) {
         }
     }
     return NULL;
+}
+
+void generate_code(int n, char *out) {
+    int base = 62;
+    int len = 6;
+    
+    for (int i = len - 1; i >= 0; i--) {
+        out[i] = charset[n % base];
+        n /= base;
+    }
+    out[len] = '\0';
+}
+
+void add_route(char *code, char *url) {
+    strcpy(routes[route_count].code, code);
+    strcpy(routes[route_count].url, url);
+    route_count++;
 }
