@@ -14,6 +14,7 @@ void load_routes(char *filename);
 char *find_url(char *code);
 void generate_code(char *out);        // สร้าง code
 char *add_route(char *url);  // เพิ่ม mapping
+int delete_route(char *code);
 
 
 #endif

@@ -66,3 +66,24 @@ char *add_route(char *url) {
     return routes[route_count - 1].code;
 }
 
+int delete_route(char *code) {
+    for (int i = 0; i < route_count; i++) {
+        if (strcmp(routes[i].code, code) == 0) {
+            // เลื่อน element ถัดไปมาทับ
+            for (int j = i; j < route_count - 1; j++) {
+                routes[j] = routes[j + 1];
+            }
+            route_count--;
+
+            // เขียน mapping.txt ใหม่ทั้งหมด
+            FILE *f = fopen("mapping.txt", "w");
+            for (int k = 0; k < route_count; k++) {
+                fprintf(f, "%s %s\n", routes[k].code, routes[k].url);
+            }
+            fclose(f);
+
+            return 1;  // ลบสำเร็จ
+        }
+    }
+    return 0;  // ไม่เจอ
+}

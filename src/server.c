@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <time.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <time.h>
 #include "route.h"
+#include "handler.h"
 
 #define PORT 8080
 #define BUFFER_SIZE 4096
@@ -15,7 +16,6 @@ int main() {
     struct sockaddr_in address;
     char buffer[BUFFER_SIZE];
     int addrlen = sizeof(address);
-
 
     load_routes("mapping.txt");
     srand(time(NULL));
@@ -41,53 +41,24 @@ int main() {
         memset(buffer, 0, BUFFER_SIZE);
         read(client_fd, buffer, BUFFER_SIZE);
 
-        // ---- POST /shorten ----
         if (strstr(buffer, "POST /shorten") != NULL) {
-            // ดึง URL จาก body
             char *body = strstr(buffer, "\r\n\r\n");
-            body += 4;  // ข้าม blank line
-
-            // สร้าง code
-            char *code = add_route(body);
-
-            // คืน code กลับ
-            char response[512];
-            snprintf(response, sizeof(response),
-                "HTTP/1.1 200 OK\r\n"
-                "Content-Length: %zu\r\n"
-                "\r\n"
-                "%s", strlen(code), code);
-
-            write(client_fd, response, strlen(response));
-            close(client_fd);
-            continue;
-        }
-
-        // ---- GET /:code ----
-        char *path = strstr(buffer, "GET ");
-        path += 4;
-        char *end = strstr(path, " ");
-        *end = '\0';
-
-        char *url = find_url(path + 1);
-
-        const char *response;
-        char redirect[512];
-
-        if (url != NULL) {
-            snprintf(redirect, sizeof(redirect),
-                "HTTP/1.1 302 Found\r\n"
-                "Location: %s\r\n"
-                "Content-Length: 0\r\n"
-                "\r\n", url);
-            response = redirect;
+            body += 4;
+            handle_post(client_fd, body);
+        } else if (strstr(buffer, "DELETE") != NULL) {
+            char *path = strstr(buffer, "DELETE ");
+            path += 7;
+            char *end = strstr(path, " ");
+            *end = '\0';
+            handle_delete(client_fd, path);
         } else {
-            response = "HTTP/1.1 404 Not Found\r\n"
-                       "Content-Length: 0\r\n"
-                       "\r\n";
+            char *path = strstr(buffer, "GET ");
+            path += 4;
+            char *end = strstr(path, " ");
+            *end = '\0';
+            handle_get(client_fd, path);
         }
 
-        write(client_fd, response, strlen(response));
         close(client_fd);
     }
 
