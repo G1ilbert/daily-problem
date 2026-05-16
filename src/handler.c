@@ -55,3 +55,17 @@ void handle_delete(int client_fd, char *path) {
 
     write(client_fd, response, strlen(response));
 }
+
+void handle_list(int client_fd) {
+    char body[BUFFER_SIZE];
+    get_all_routes(body, sizeof(body));
+
+    char response[BUFFER_SIZE + 256];
+    snprintf(response, sizeof(response),
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Length: %zu\r\n"
+        "\r\n"
+        "%s", strlen(body), body);
+
+    write(client_fd, response, strlen(response));
+}

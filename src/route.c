@@ -87,3 +87,13 @@ int delete_route(char *code) {
     }
     return 0;  // ไม่เจอ
 }
+
+void get_all_routes(char *out, int size) {
+    out[0] = '\0';
+    for (int i = 0; i < route_count; i++) {
+        char line[600];
+        snprintf(line, sizeof(line), "%s %s\n", 
+                 routes[i].code, routes[i].url);
+        strncat(out, line, size - strlen(out) - 1);
+    }
+}
