@@ -3,8 +3,16 @@
 #include <unistd.h>
 #include "handler.h"
 #include "route.h"
+#include "validator.h"
 
 void handle_post(int client_fd, char *body) {
+    if (!is_valid_url(body)) {
+        write(client_fd,
+              "HTTP/1.1 400 Bad Request\r\n"
+              "Content-Length: 0\r\n"
+              "\r\n", 38);
+        return;
+    }
     char *code = add_route(body);
 
     char response[512];
