@@ -69,3 +69,28 @@ void handle_list(int client_fd) {
 
     write(client_fd, response, strlen(response));
 }
+
+void handle_stats(int client_fd, char *code) {
+    // เช็คก่อนว่า code มีอยู่จริงไหม
+    char *url = find_url_no_log(code);  
+    if (url == NULL) {
+        write(client_fd, 
+              "HTTP/1.1 404 Not Found\r\n"
+              "Content-Length: 0\r\n"
+              "\r\n", 38);
+        return;
+    }
+    int count = get_stats(code);
+
+    char body[64];
+    snprintf(body, sizeof(body), "%s clicked %d times\n", code, count);
+
+    char response[256];
+    snprintf(response, sizeof(response),
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Length: %zu\r\n"
+        "\r\n"
+        "%s", strlen(body), body);
+
+    write(client_fd, response, strlen(response));
+}

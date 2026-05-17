@@ -7,5 +7,6 @@ void handle_post(int client_fd, char *body);
 void handle_get(int client_fd, char *path);
 void handle_delete(int client_fd, char *path);
 void handle_list(int client_fd);
+void handle_stats(int client_fd, char *code);
 
 #endif

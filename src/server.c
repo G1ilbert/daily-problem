@@ -40,7 +40,13 @@ int main() {
 
         memset(buffer, 0, BUFFER_SIZE);
         read(client_fd, buffer, BUFFER_SIZE);
-        if (strstr(buffer, "GET /list") != NULL) {
+        if (strstr(buffer, "GET /stats/") != NULL) {
+            char *path = strstr(buffer, "GET /stats/");
+            path += 11;  // ข้าม "GET /stats/"
+            char *end = strstr(path, " ");
+            *end = '\0';
+            handle_stats(client_fd, path);
+        } else if (strstr(buffer, "GET /list") != NULL) {
             handle_list(client_fd);
         } else if (strstr(buffer, "POST /shorten") != NULL) {
             char *body = strstr(buffer, "\r\n\r\n");

@@ -23,10 +23,18 @@ void load_routes(char *filename) {
     
     fclose(f);
 }
-
+char *find_url_no_log(char *code) {
+    for (int i = 0; i < route_count; i++) {
+        if (strcmp(routes[i].code, code) == 0) {
+            return routes[i].url;
+        }
+    }
+    return NULL;
+}
 char *find_url(char *code) {
     for (int i = 0; i < route_count; i++) {
         if (strcmp(routes[i].code, code) == 0) {
+            write_log(code);  // เพิ่มตรงนี้
             return routes[i].url;
         }
     }
@@ -96,4 +104,32 @@ void get_all_routes(char *out, int size) {
                  routes[i].code, routes[i].url);
         strncat(out, line, size - strlen(out) - 1);
     }
+}
+
+// เพิ่มใน find_url ตรงที่เจอ url
+void write_log(char *code) {
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    char datetime[20];
+    strftime(datetime, sizeof(datetime), "%Y-%m-%d %H:%M:%S", t);
+
+    FILE *log = fopen("log.txt", "a");
+    if (log == NULL) { perror("Cannot open log.txt"); return; }
+    fprintf(log, "%s %s\n", datetime, code);
+    fclose(log);
+}
+
+int get_stats(char *code) {
+    FILE *log = fopen("log.txt", "r");
+    if (log == NULL) return 0;
+
+    int count = 0;
+    char date[12], time_str[10], logged_code[50];
+
+    while (fscanf(log, "%s %s %s", date, time_str, logged_code) == 3) {
+    if (strcmp(logged_code, code) == 0) count++;
+}
+
+    fclose(log);
+    return count;
 }
