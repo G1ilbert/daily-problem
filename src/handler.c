@@ -13,6 +13,7 @@ void handle_post(int client_fd, char *body) {
               "\r\n", 38);
         return;
     }
+    normalize_url(body);
     char *code = add_route(body);
 
     char response[512];

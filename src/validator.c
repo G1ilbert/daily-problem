@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <regex.h>
+#include <ctype.h>
 #include "validator.h"
 
 int is_valid_url(char *url) {
@@ -14,4 +15,23 @@ int is_valid_url(char *url) {
     regfree(&reg);
 
     return result == 0;  // 0 = match
+}
+
+void normalize_url(char *url) {
+    // ตัด trailing slash
+    int len = strlen(url);
+    if (url[len - 1] == '/') {
+        url[len - 1] = '\0';
+    }
+
+    // แปลง domain เป็น lowercase
+    // หา domain หลัง ://
+    char *domain = strstr(url, "://");
+    if (domain == NULL) return;
+    domain += 3;
+
+    // lowercase จนเจอ / หรือจบ string
+    for (int i = 0; domain[i] != '\0' && domain[i] != '/'; i++) {
+        domain[i] = tolower(domain[i]);
+    }
 }
