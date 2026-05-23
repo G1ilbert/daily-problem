@@ -10,7 +10,7 @@ int is_valid_url(char *url) {
     regex_t reg;
     int result;
 
-    regcomp(&reg, "^https?://[a-zA-Z0-9._-]+\\.[a-zA-Z]{2,}", REG_EXTENDED);
+    regcomp(&reg, "^https?://[a-zA-Z0-9._-]+\\.[a-zA-Z]{2,}[a-zA-Z0-9/_\\-\\.\\?=&#%]*$", REG_EXTENDED);
     result = regexec(&reg, url, 0, NULL, 0);
     regfree(&reg);
 
