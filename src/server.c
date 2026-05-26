@@ -7,12 +7,22 @@
 #include <time.h>
 #include "route.h"
 #include "handler.h"
+#include <signal.h> 
 
 #define PORT 8080
 #define BUFFER_SIZE 4096
 
+int server_fd;
+
+void handle_sigint(int sig) {
+    printf("\nShutting down...\n");
+    close(server_fd);
+    exit(0);
+}
+
 int main() {
-    int server_fd, client_fd;
+    
+    int client_fd;
     struct sockaddr_in address;
     char buffer[BUFFER_SIZE];
     int addrlen = sizeof(address);
@@ -22,6 +32,12 @@ int main() {
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd == 0) { perror("socket failed"); exit(1); }
+
+    int opt = 1;
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
+    // เพิ่มตรงนี้ — ใน main() ก่อน loop
+    signal(SIGINT, handle_sigint);
 
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
